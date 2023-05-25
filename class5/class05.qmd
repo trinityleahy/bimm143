@@ -1,0 +1,136 @@
+---
+title: "Class 05: Data Visualization"
+author: "Trinity (PID: A15766955)"
+format: pdf
+editor: visual
+---
+
+# Base R graphics vs ggplot2
+
+There are many graphics systems available in R, including so-called "base" R graphics and the very popular **ggplot2** package.
+
+To compare there let's play with the inbuilt `cars` dataset.
+
+```{r}
+head(cars)
+```
+To use "base" R I can simply call the `plot()` function: 
+```{r}
+plot(cars)
+```
+
+To use `ggplot2` package, I first need to install it with the function`install.packages("ggplot2")`.
+
+I will run this in my R console (i.e. the R brain) as I do not want to re-install every time I render my report...
+
+```{r}
+library(ggplot2)
+ggplot()
+```
+
+To make a figure with ggplot, I always need three things:
+
+ - **data** (what I want to plot)
+ - **aes** (the aesthetic mapping of the data)
+ - **geoms** (how I want to plot the data)
+
+```{r}
+ggplot(data=cars) + 
+         aes(x=speed, y=dist) +
+         geom_point()
+```
+I can just keep adding layers.
+
+```{r}
+ggplot(data=cars) + 
+         aes(x=speed, y=dist) +
+         geom_point() + geom_smooth()
+```
+
+Ggplot is much more verbose than base R plots for standard plots but it has a consistent later system that I can use to make just any plot.
+
+Let's make a plot with a straight line fit - i.e. a linear model and no standard error shown.
+
+```{r}
+ggplot(data=cars) + 
+         aes(x=speed, y=dist) +
+         geom_point() + geom_smooth(se = FALSE, method = lm)
+```
+
+```{r}
+ggplot(data=cars) + 
+ aes(x=speed, y=dist) +
+ geom_point() + 
+ labs(title="speed vs stopping distance of cars", x ="speed (MPH)", y="stopping distance (ft)", subtitle="BIMM 143", caption="Dataset: 'cars'") +
+ geom_smooth(se = FALSE, method = "lm") + 
+ theme_bw()
+```
+
+## A more complicated plot
+
+Let's plot some gene expression data
+
+Let’s turn for a moment to more relevant example data set. The code below reads the results of a differential expression analysis where a new anti-viral drug is being tested.
+```{r}
+url <- "https://bioboot.github.io/bimm143_S20/class-material/up_down_expression.txt"
+genes <- read.delim(url)
+head(genes)
+```
+
+> Q. How many genes are in this dataset?
+
+```{r}
+nrow(genes)
+```
+
+> Q. How many columns are there and what are their names?
+
+```{r}
+colnames(genes)
+ncol(genes)
+```
+
+>Q. How can we summarize that last column - the "state" column?
+
+```{r}
+table(genes$State)
+```
+
+Plotting this data:
+
+```{r}
+p <- ggplot(genes) + 
+  aes(x=Condition1, y=Condition2, color=State) + 
+  geom_point()
+```
+
+```{r}
+p + labs(x="control", y="drug treatment")+ scale_colour_manual(values=c("green", "beige", "blue"))
+```
+
+## Going Further
+
+Here I need a slightly larger dataset.
+
+```{r}
+# File location online
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/master/inst/extdata/gapminder.tsv"
+
+gapminder <- read.delim(url)
+head(gapminder)
+```
+
+```{r}
+ggplot(gapminder) +
+  aes(x=gdpPercap, y=lifeExp, color=continent, size=pop) +
+  geom_point(alpha=0.3)
+```
+
+A very useful layer to add sometimes is "faceting"
+
+```{r}
+ggplot(gapminder) +
+  aes(x=gdpPercap, y=lifeExp, color=continent, size=pop) +
+  geom_point(alpha=0.3) +
+  facet_wrap(~continent)
+```
