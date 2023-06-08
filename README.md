@@ -15,3 +15,11 @@ Form class [BIMM143](https://bioboot.github.io/bimm143_S23/)
 - Class 09: **Structural Bioinformatics Pt. 1** [source code](https://github.com/trinityleahy/bimm143/blob/main/class09/class09.qmd)
 
 - Class 10: **Structural Bioinformatics Pt. 2** [source code](https://github.com/trinityleahy/bimm143/blob/main/class10/class10.qmd)
+
+- Class 11: **Candy Mini-Project** [source code](https://github.com/trinityleahy/bimm143/blob/main/Class11/candyproject.qmd)
+
+- Class 12: **RNAseq Analysis** [source code](https://github.com/trinityleahy/bimm143/blob/main/class12/class12.qmd)
+
+- Class 13: **RNAseq Mini-Project** [source code](https://github.com/trinityleahy/bimm143/blob/main/Class13/Class%2013%20Lab.qmd)
+
+- Class 17: **Pertussis** [source code](https://github.com/trinityleahy/bimm143/blob/main/Class%2017/Pertussis%20Mini%20Project.qmd)
