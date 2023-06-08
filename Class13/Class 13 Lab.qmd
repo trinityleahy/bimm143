@@ -1,0 +1,160 @@
+---
+title: "Class 13 RNA-Seq Mini Project"
+author: "Trinity Leahy"
+format: pdf
+editor: visual
+---
+
+# Differential Expression Analysis
+
+```{r}
+#| message = FALSE
+library(DESeq2)
+```
+
+```{r}
+metaFile <- "GSE37704_metadata.csv"
+countFile <- "GSE37704_featurecounts.csv"
+```
+
+```{r}
+colData = read.csv(metaFile, row.names=1)
+head(colData)
+```
+
+```{r}
+countData = read.csv(countFile, row.names=1)
+head(countData)
+```
+
+To remove the first column, I can use the -1 trick for the columns.
+
+```{r}
+countData <- as.matrix(countData[,-1])
+head(countData)
+```
+
+```{r}
+zero_counts <- rowSums(countData) == 0
+
+countdata = countData[!zero_counts,]
+head(countdata)
+nrow(countdata)
+```
+
+```{r}
+dds <-  DESeqDataSetFromMatrix(countData=countdata,
+                             colData=colData,
+                             design=~condition)
+```
+
+```{r}
+dds <-  DESeq(dds)
+```
+
+```{r}
+res <- results(dds)
+res
+```
+
+# Annotate
+
+```{r}
+#| message = FALSE
+library("AnnotationDbi")
+library("org.Hs.eg.db")
+```
+
+```{r}
+columns(org.Hs.eg.db)
+```
+
+```{r}
+head(res)
+```
+
+```{r}
+res$symbol <- mapIds(org.Hs.eg.db,
+                     keys=row.names(res), # Our genenames
+                     keytype="ENSEMBL",   # The format of our genenames
+                     column="SYMBOL",   # The new format we want to add
+                     multiVals="first")
+head(res$symbol)
+```
+
+```{r}
+res$entrez <- mapIds(org.Hs.eg.db,
+                     keys=row.names(res), # Our genenames
+                     keytype="ENSEMBL",   # The format of our genenames
+                     column="ENTREZID",  # The new format we want to add
+                     multiVals="first")
+head(res$entrez)
+```
+
+```{r}
+head(res)
+```
+
+```{r}
+write.csv(res, file = "myresults.csv")
+```
+
+# Volcano Plot
+
+```{r}
+# Make a color vector for all genes
+mycols <- rep("gray", nrow(res) )
+
+# Color red the genes with absolute fold change above 2
+mycols[ abs(res$log2FoldChange) > 2 ] <- "red"
+
+# Color blue those with adjusted p-value less than 0.01
+#  and absolute fold change more than 2
+inds <- (abs(res$padj) < 0.01) & (abs(res$log2FoldChange) > 2 )
+mycols[ inds ] <- "blue"
+
+plot( res$log2FoldChange, -log(res$padj), col=mycols, xlab="Log2(FoldChange)", ylab="-Log(P-value)" )
+```
+
+
+# Pathway Analysis
+```{r}
+#| message = FALSE
+library(pathview)
+library(gage)
+library(gageData)
+```
+
+```{r}
+data(kegg.sets.hs)
+
+# Examine the first 2 pathways in this kegg set for humans
+head(kegg.sets.hs, 2)
+```
+
+```{r}
+foldchanges = res$log2FoldChange
+names(foldchanges) = res$entrez
+head(foldchanges)
+```
+
+```{r}
+keggres = gage(foldchanges, gsets = kegg.sets.hs)
+attributes(keggres)
+```
+
+```{r}
+head(keggres$less, 3)
+```
+
+```{r}
+# | message = FALSE
+pathview(gene.data=foldchanges, pathway.id="hsa04110")
+```
+
+![Cell Cycle Pathway from KEGG with our genes shown in color](hsa04110.pathview.png)
+
+
+
+
+
