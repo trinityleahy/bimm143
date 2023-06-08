@@ -1,0 +1,16 @@
+This is 
+my text notes for class 15.
+
+Note 1. absolute paths define the route to files from the base of the 
+computer
+
+relative paths are shortcut paths that are relative to the current 
+working dir.
+
+Successfully initiated launch of instance (i-02b2884ebe1d7c512)
+ssh -i "bimm143_leahy.pem" 
+ubuntu@ec2-52-13-87-137.us-west-2.compute.amazonaws.com
+
+
+scp -i "bimm143_leahy.pem"
+ubuntu@ec2-52-13-87-137.us-west-2.compute.amazonaws.com:~/work/*.tsv results.tsv
