@@ -10,5 +10,8 @@ Form class [BIMM143](https://bioboot.github.io/bimm143_S23/)
 
 - Class 07: **Introduction to Machine Learning for Bioinformatics** [source code]()
 
-- Class 10: **Structural Bioinformatics** [source code](https://github.com/trinityleahy/bimm143/blob/main/class10/class10.qmd)
+- Class 08: **Mini-Project** [source code](https://github.com/trinityleahy/bimm143/blob/main/class8/class8miniproject.qmd)
 
+- Class 09: **Structural Bioinformatics Pt. 1** [source code](https://github.com/trinityleahy/bimm143/blob/main/class09/class09.qmd)
+
+- Class 10: **Structural Bioinformatics Pt. 2** [source code](https://github.com/trinityleahy/bimm143/blob/main/class10/class10.qmd)
