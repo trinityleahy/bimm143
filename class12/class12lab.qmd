@@ -1,0 +1,169 @@
+---
+title: "class 12 DESeq Lab"
+author: "Trinity Leahy"
+format: pdf
+editor: visual
+---
+
+```{r}
+library(BiocManager)
+library(DESeq2)
+```
+
+# Importing the Data
+
+```{r}
+counts <- read.csv("airway_scaledcounts.csv", row.names=1)
+metadata <-  read.csv("airway_metadata.csv")
+```
+
+```{r}
+head(counts)
+```
+
+```{r}
+head(metadata)
+```
+
+> How many genes are in this dataset?
+
+```{r}
+nrow(metadata)
+```
+
+> How many 'control' cell lines do we have?
+
+There are 4 'control' cell lines.
+
+# Toy Differential Gene Expression
+
+
+```{r}
+control <- metadata[metadata[,"dex"]=="control",]
+control.counts <- counts[ ,control$id]
+control.mean <- rowSums( control.counts )/4 
+head(control.mean)
+```
+> Q3. How would you make the above code more robust?
+
+In order to make the above code more robust, we could modify where we divide by 4 to actually divide by the numbers of "control" samples there are.
+
+> Q4. Follow the same procedure for the treated samples (i.e. calculate the mean per gene across drug treated samples and assign to a labeled vector called treated.mean)
+
+```{r}
+treated <- metadata[metadata[,"dex"]=="treated",]
+treated.counts <- counts[ ,treated$id]
+treated.mean <- rowSums( treated.counts )/4 
+head(treated.mean)
+```
+```{r}
+meancounts <- data.frame(control.mean, treated.mean)
+head(meancounts)
+```
+
+```{r}
+colSums(meancounts)
+```
+
+> Q5 Create a scatter plot showing the mean of the treated samples against the mean of the control samples. If using ggplot, what `geom_?()` function would you use?
+
+I used geom_point().
+
+```{r}
+library(ggplot2)
+graph.meancounts <- ggplot(meancounts, aes(meancounts[,1], meancounts[,2])) +
+  geom_point() +
+  labs(x="control", y="treated")
+graph.meancounts
+```
+> Try plotting both axes on a log scale. What is the argument to plot() that allows you to do this? 
+
+```{r}
+graph.meancounts + 
+  scale_x_continuous(trans="log2") +
+  scale_y_continuous(trans="log2")
+```
+
+```{r}
+meancounts$log2fc <- log2(meancounts[,"treated.mean"]/meancounts[,"control.mean"])
+head(meancounts)
+```
+
+```{r}
+zero.vals <- which(meancounts[,1:2]==0, arr.ind=TRUE)
+
+to.rm <- unique(zero.vals[,1])
+mycounts <- meancounts[-to.rm,]
+head(mycounts)
+```
+
+> Q7. What is the purpose of the arr.ind argument in the which() function call above? Why would we then take the first column of the output and need to call the unique() function?
+
+The arr.ind argument for the `which()` function called above is to indicate that we want the return of both the genes and sample indices where there are `TRUE` values. We then call `unique()` to indicate that we do not want to count any row twice if it has zero entries in both samples.
+
+```{r}
+up.ind <- mycounts$log2fc > 2
+down.ind <- mycounts$log2fc < (-2)
+```
+
+> Q8. Using the up.ind vector above can you determine how many up regulated genes we have at the greater than 2 fc level? 
+
+```{r}
+count(up.ind == TRUE)
+```
+
+> Q9. Using the down.ind vector above can you determine how many down regulated genes we have at the greater than 2 fc level? 
+
+```{r}
+count(down.ind == TRUE)
+```
+
+> Q10. Do you trust these results? Why or why not?
+
+No we should not necessarily trust the results in their current form. We have yet to do any statistical analysis to determine if our results are actually significant or if we are being mislead.
+
+# DESEQ2 Analysis
+
+```{r}
+library(DESeq2)
+citation("DESeq2")
+```
+
+```{r}
+dds <- DESeqDataSetFromMatrix(countData=counts, 
+                              colData=metadata, 
+                              design=~dex)
+dds
+```
+
+```{r}
+dds <- DESeq(dds)
+```
+
+```{r}
+res <- results(dds)
+res
+```
+
+```{r}
+summary(res)
+```
+
+```{r}
+res05 <- results(dds, alpha=0.05)
+summary(res05)
+```
+
+Summary Plot:
+
+```{r}
+plot( res$log2FoldChange, -log(res$padj), 
+      xlab="Log2(FoldChange)",
+      ylab="-Log(P-value)")
+```
+
+
+
+
+
+
